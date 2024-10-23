@@ -76,9 +76,5 @@ Within the same pipeline stage run the command `source outputVariables`.
 
 ## Links
 
-Plugin OCI: https://hub.docker.com/repository/docker/datarobotdev/harness-github-api-plugin/general \
+Plugin docker image: https://ghcr.io/datarobot-oss/harness-github-api-plugin \
 Harness documentation for plugins: https://developer.harness.io/docs/category/use-plugins/ 
- 
-
-
-
