@@ -7,6 +7,7 @@ RUN go get .
 RUN go build -v -o .
 
 FROM scratch
+LABEL org.opencontainers.image.source=https://github.com/datarobot-oss/harness-github-api-plugin
 COPY --from=build /go/harness-github-api-plugin /go/harness-github-api-plugin
 COPY --from=build /etc/ssl /etc/ssl
 COPY --from=build /bin/cp /bin/cp
