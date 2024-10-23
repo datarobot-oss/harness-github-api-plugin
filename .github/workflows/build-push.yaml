@@ -16,8 +16,9 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USER }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push Docker image
         id: push
@@ -26,4 +27,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: datarobotdev/harness-github-api-plugin
+          tags: ghcr.io/datarobot-oss/harness-github-api-plugin
