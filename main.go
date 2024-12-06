@@ -47,11 +47,12 @@ func main() {
 	}
 	if strings.Contains(commands, "createPullRequest") {
 		verifyPluginParameters([]string{"PLUGIN_PR_SOURCE_BRANCH", "PLUGIN_PR_TARGET_BRANCH", "PLUGIN_PR_TITLE", "PLUGIN_PR_BODY"})
-		createPullRequest(client, &ctx, repositoryName, repositoryOwner,
+		fields := createPullRequest(client, &ctx, repositoryName, repositoryOwner,
 			os.Getenv("PLUGIN_PR_SOURCE_BRANCH"),
 			os.Getenv("PLUGIN_PR_TARGET_BRANCH"),
 			os.Getenv("PLUGIN_PR_TITLE"),
 			os.Getenv("PLUGIN_PR_BODY"))
+		writeResult(*results, fields)
 	}
 	if strings.Contains(commands, "setStatusCheck") {
 		verifyPluginParameters([]string{"PLUGIN_STATUS_CHECK_SHA",
