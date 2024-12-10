@@ -16,7 +16,7 @@ func createPullRequest(client *github.Client, ctx *context.Context, repositoryNa
 	if err != nil {
 		ghErr, _ := err.(*github.ErrorResponse)
 		if strings.HasPrefix(ghErr.Errors[0].Message, "A pull request already exists") {
-			fmt.Println("Pull Request with requested head and base already exists. Getting it's Number.")
+			fmt.Println("Pull Request with requested head and base already exists. Getting its number.")
 			options := &github.PullRequestListOptions{
 				Head: repositoryOwner + ":" + sourceBranch,
 				Base: targetBranch,

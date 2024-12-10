@@ -64,6 +64,10 @@ It iterates through commands, performs requested operations and optionally expor
 `STATUS_CHECK_URL=<+{pipeline/stage URL}>` \
 `STATUS_CHECK_DESCRIPTION="Build and push project images"` 
 
+### Get status checks
+`COMMANDS="getStatuses"` \
+`REF=branch-name-or-sha`
+
 ## Caveats and restrictions
 Harness has a number of limitations that are related to plugin functionality:
 - It doesn't process multiline output data
