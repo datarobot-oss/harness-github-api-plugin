@@ -67,6 +67,10 @@ func main() {
 			os.Getenv("PLUGIN_STATUS_CHECK_URL"),
 			os.Getenv("PLUGIN_STATUS_CHECK_DESCRIPTION"))
 	}
+	if strings.Contains(commands, "getStatuses") {
+		verifyPluginParameters([]string{"PLUGIN_REF"})
+		listStatusChecks(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_REF"))
+	}
 	if strings.Contains(commands, "mergePr") {
 		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
 		mergePullRequest(client, &ctx, repositoryName, repositoryOwner,
