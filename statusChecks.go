@@ -2,14 +2,9 @@ package main
 
 import (
 	"context"
-<<<<<<< HEAD
 	"encoding/json"
 	"github.com/google/go-github/v62/github"
 	"strings"
-=======
-	"fmt"
-	"github.com/google/go-github/v62/github"
->>>>>>> 4c8b004 (Add getStatuses command)
 )
 
 func setStatusCheck(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string,
