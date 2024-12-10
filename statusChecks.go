@@ -23,7 +23,7 @@ func listStatusChecks(client *github.Client, ctx *context.Context, repositoryNam
 	statuses, _, err := client.Repositories.ListStatuses(*ctx, repositoryOwner, repositoryName, sha, nil)
 	failOnErr(err)
 	allStatuses := ""
-	allStatusesMap := map[string]string{}
+	var allStatusesArray []map[string]string
 	for i, status := range statuses {
 		prefix := ""
 		if i > 0 {
@@ -31,10 +31,13 @@ func listStatusChecks(client *github.Client, ctx *context.Context, repositoryNam
 		}
 		if !strings.Contains(allStatuses, *status.Context) {
 			allStatuses += prefix + *status.Context + " " + *status.State
-			allStatusesMap[*status.Context] = *status.State
+			allStatusesArray = append(allStatusesArray, map[string]string{
+				"context": *status.Context,
+				"status":  *status.State,
+			})
 		}
 	}
-	statusesJson, err := json.Marshal(allStatusesMap)
+	statusesJson, err := json.Marshal(allStatusesArray)
 	fields := map[string]string{
 		"STATUSES":      allStatuses,
 		"STATUSES_JSON": string(statusesJson),
