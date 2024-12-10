@@ -69,7 +69,8 @@ func main() {
 	}
 	if strings.Contains(commands, "getStatuses") {
 		verifyPluginParameters([]string{"PLUGIN_REF"})
-		listStatusChecks(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_REF"))
+		fields := listStatusChecks(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_REF"))
+		writeResult(*results, fields)
 	}
 	if strings.Contains(commands, "mergePr") {
 		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
