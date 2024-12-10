@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"github.com/google/go-github/v62/github"
+	"strings"
 )
 
 func setStatusCheck(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string,
@@ -21,15 +22,22 @@ func setStatusCheck(client *github.Client, ctx *context.Context, repositoryName 
 func listStatusChecks(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string, sha string) map[string]string {
 	statuses, _, err := client.Repositories.ListStatuses(*ctx, repositoryOwner, repositoryName, sha, nil)
 	failOnErr(err)
-	var allStatuses string = ""
+	allStatuses := ""
+	allStatusesMap := map[string]string{}
 	for i, status := range statuses {
-		var prefix string = ""
+		prefix := ""
 		if i > 0 {
 			prefix = ", "
 		}
-		allStatuses += prefix + *status.Context + " " + *status.State
+		if !strings.Contains(allStatuses, *status.Context) {
+			allStatuses += prefix + *status.Context + " " + *status.State
+			allStatusesMap[*status.Context] = *status.State
+		}
 	}
-	fmt.Println(allStatuses)
-	fields := map[string]string{"STATUSES": allStatuses}
+	statusesJson, err := json.Marshal(allStatusesMap)
+	fields := map[string]string{
+		"STATUSES":      allStatuses,
+		"STATUSES_JSON": string(statusesJson),
+	}
 	return fields
 }
