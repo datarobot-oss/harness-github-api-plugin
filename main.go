@@ -72,6 +72,14 @@ func main() {
 		fields := listStatusChecks(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_REF"))
 		writeResult(*results, fields)
 	}
+	if strings.Contains(commands, "waitForStatus") {
+		verifyPluginParameters([]string{"PLUGIN_REF", "PLUGIN_STATUS_CONTEXT"})
+		fields := waitForStatus(client, &ctx, repositoryName, repositoryOwner,
+			os.Getenv("PLUGIN_REF"),
+			os.Getenv("PLUGIN_STATUS_CHECK_CONTEXT"),
+			os.Getenv("PLUGIN_STATUS_CHECK_WAIT_TIMEOUT"))
+		writeResult(*results, fields)
+	}
 	if strings.Contains(commands, "mergePr") {
 		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
 		mergePullRequest(client, &ctx, repositoryName, repositoryOwner,
