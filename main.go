@@ -73,7 +73,7 @@ func main() {
 		writeResult(*results, fields)
 	}
 	if strings.Contains(commands, "waitForStatus") {
-		verifyPluginParameters([]string{"PLUGIN_REF", "PLUGIN_STATUS_CONTEXT"})
+		verifyPluginParameters([]string{"PLUGIN_REF", "PLUGIN_STATUS_CHECK_CONTEXT"})
 		fields := waitForStatus(client, &ctx, repositoryName, repositoryOwner,
 			os.Getenv("PLUGIN_REF"),
 			os.Getenv("PLUGIN_STATUS_CHECK_CONTEXT"),
