@@ -16,7 +16,7 @@ func createPullRequest(client *github.Client, ctx *context.Context, repositoryNa
 	if err != nil {
 		ghErr, _ := err.(*github.ErrorResponse)
 		if strings.HasPrefix(ghErr.Errors[0].Message, "A pull request already exists") {
-			fmt.Println("Pull Request with requested head and base already exists. Getting its number.")
+			fmt.Println("Pull Request with requested head and base already exists. Updating Title and Body. Getting PR details.")
 			options := &github.PullRequestListOptions{
 				Head: repositoryOwner + ":" + sourceBranch,
 				Base: targetBranch,
@@ -24,11 +24,22 @@ func createPullRequest(client *github.Client, ctx *context.Context, repositoryNa
 			prs, _, err := client.PullRequests.List(*ctx, repositoryOwner, repositoryName, options)
 			failOnErr(err)
 			pr = prs[0]
+			pr.Title = &title
+			pr.Body = &body
+			pr, _, err = client.PullRequests.Edit(*ctx, repositoryOwner, repositoryName, *pr.Number, pr)
+			failOnErr(err)
 		} else {
 			log.Fatal(err)
 		}
 	}
-	fields := map[string]string{"PR_NUMBER": strconv.Itoa(*pr.Number)}
+	fields := map[string]string{
+		"PR_NUMBER":   strconv.Itoa(*pr.Number),
+		"PR_URL":      pr.GetHTMLURL(),
+		"PR_TITLE":    pr.GetTitle(),
+		"PR_HEAD":     pr.GetHead().GetRef(),
+		"PR_HEAD_SHA": pr.GetHead().GetSHA(),
+		"PR_BASE":     pr.GetBase().GetRef(),
+	}
 	return fields
 }
 
