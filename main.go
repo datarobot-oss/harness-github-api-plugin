@@ -51,8 +51,15 @@ func main() {
 			os.Getenv("PLUGIN_PR_SOURCE_BRANCH"),
 			os.Getenv("PLUGIN_PR_TARGET_BRANCH"),
 			os.Getenv("PLUGIN_PR_TITLE"),
-			os.Getenv("PLUGIN_PR_BODY"))
+			os.Getenv("PLUGIN_PR_BODY"),
+			os.Getenv("PLUGIN_PR_LABELS"))
 		writeResult(*results, fields)
+	}
+	if strings.Contains(commands, "AddPullRequestLabels") {
+		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER", "PLUGIN_PR_LABELS"})
+		addPullRequestLabels(client, &ctx, repositoryName, repositoryOwner,
+			os.Getenv("PLUGIN_PR_NUMBER"),
+			os.Getenv("PLUGIN_PR_LABELS"))
 	}
 	if strings.Contains(commands, "setStatusCheck") {
 		verifyPluginParameters([]string{"PLUGIN_STATUS_CHECK_SHA",
