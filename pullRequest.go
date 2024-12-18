@@ -10,7 +10,7 @@ import (
 )
 
 func createPullRequest(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string,
-	sourceBranch string, targetBranch string, title string, body string) map[string]string {
+	sourceBranch string, targetBranch string, title string, body string, labels string) map[string]string {
 	pr, _, err := client.PullRequests.Create(*ctx, repositoryOwner, repositoryName,
 		&github.NewPullRequest{Title: &title, Body: &body, Head: &sourceBranch, Base: &targetBranch})
 	if err != nil {
@@ -31,6 +31,10 @@ func createPullRequest(client *github.Client, ctx *context.Context, repositoryNa
 		} else {
 			log.Fatal(err)
 		}
+	}
+	if labels != "" {
+		fmt.Println("Adding labels: " + labels)
+		addPullRequestLabels(client, ctx, repositoryName, repositoryOwner, strconv.Itoa(*pr.Number), labels)
 	}
 	fields := map[string]string{
 		"PR_NUMBER":   strconv.Itoa(*pr.Number),
@@ -70,4 +74,14 @@ func getPullRequest(client *github.Client, ctx *context.Context, repositoryName 
 		"IS_DRAFT":         strconv.FormatBool(pr.GetDraft()),
 	}
 	return fields
+}
+
+func addPullRequestLabels(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string, pullRequestNumber string, labels string) {
+	number, _ := strconv.Atoi(pullRequestNumber)
+	labelsStrArray := strings.Split(labels, ",")
+	for i, labelName := range labelsStrArray {
+		labelsStrArray[i] = strings.Trim(labelName, " ")
+	}
+	_, _, err := client.Issues.AddLabelsToIssue(*ctx, repositoryOwner, repositoryName, number, labelsStrArray)
+	failOnErr(err)
 }
