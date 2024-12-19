@@ -32,7 +32,7 @@ func createPullRequest(client *github.Client, ctx *context.Context, repositoryNa
 			log.Fatal(err)
 		}
 	}
-	if labels != "" {
+	if labels != "" && labels != "null" {
 		fmt.Println("Adding labels: " + labels)
 		addPullRequestLabels(client, ctx, repositoryName, repositoryOwner, strconv.Itoa(*pr.Number), labels)
 	}
