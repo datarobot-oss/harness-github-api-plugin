@@ -93,6 +93,11 @@ func main() {
 			os.Getenv("PLUGIN_PR_NUMBER"),
 			os.Getenv("PLUGIN_MERGE_COMMENT"))
 	}
+	if strings.Contains(commands, "getRef") {
+		verifyPluginParameters([]string{"PLUGIN_REF"})
+		fields := getRef(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_REF"))
+		writeResult(*results, fields)
+	}
 	results.Close()
 
 	out, err := exec.Command("cp", "-v", outputFile, copyOutputFile).Output()
