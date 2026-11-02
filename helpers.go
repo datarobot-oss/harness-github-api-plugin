@@ -29,3 +29,13 @@ func failOnErr(err error) {
 		log.Fatal(err)
 	}
 }
+
+// optionalEnv returns the plugin setting, treating "null" (what Harness passes for an
+// unresolved optional expression) the same as unset.
+func optionalEnv(name string) string {
+	v := os.Getenv(name)
+	if v == "null" {
+		return ""
+	}
+	return v
+}
