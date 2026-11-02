@@ -106,14 +106,14 @@ func main() {
 	}
 	if strings.Contains(commands, "upsertPrComment") {
 		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
-		body := resolveCommentBody(os.Getenv("PLUGIN_COMMENT_BODY"), os.Getenv("PLUGIN_COMMENT_BODY_FILE"))
+		body := resolveCommentBody(optionalEnv("PLUGIN_COMMENT_BODY"), optionalEnv("PLUGIN_COMMENT_BODY_FILE"))
 		if body == "" {
 			log.Fatal("upsertPrComment needs COMMENT_BODY or COMMENT_BODY_FILE")
 		}
 		fields := upsertPrComment(client, &ctx, repositoryName, repositoryOwner,
 			os.Getenv("PLUGIN_PR_NUMBER"),
 			body,
-			os.Getenv("PLUGIN_COMMENT_MARKER"))
+			optionalEnv("PLUGIN_COMMENT_MARKER"))
 		writeResult(*results, fields)
 	}
 	if strings.Contains(commands, "addReaction") {

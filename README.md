@@ -163,6 +163,8 @@ considered. Use different markers for comments that should stay separate, for ex
 `COMMENT_BODY_FILE` is read from the step's workspace, so an earlier `Run` step in the same stage can write
 a long or multiline report to it.
 
+Optional settings set to `null` (what Harness passes for an expression without a value) are treated as unset.
+
 Outputs: `COMMENT_ID`, `COMMENT_URL`, `COMMENT_ACTION` (`created` or `updated`)
 
 ### Add reaction to a comment
