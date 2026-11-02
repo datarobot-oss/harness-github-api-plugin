@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofri/go-github-ratelimit/github_ratelimit"
 	"github.com/google/go-github/v62/github"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -97,6 +98,29 @@ func main() {
 		verifyPluginParameters([]string{"PLUGIN_REF"})
 		fields := getRef(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_REF"))
 		writeResult(*results, fields)
+	}
+	if strings.Contains(commands, "getUserPermission") {
+		verifyPluginParameters([]string{"PLUGIN_USERNAME"})
+		fields := getUserPermission(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_USERNAME"))
+		writeResult(*results, fields)
+	}
+	if strings.Contains(commands, "upsertPrComment") {
+		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
+		body := resolveCommentBody(os.Getenv("PLUGIN_COMMENT_BODY"), os.Getenv("PLUGIN_COMMENT_BODY_FILE"))
+		if body == "" {
+			log.Fatal("upsertPrComment needs COMMENT_BODY or COMMENT_BODY_FILE")
+		}
+		fields := upsertPrComment(client, &ctx, repositoryName, repositoryOwner,
+			os.Getenv("PLUGIN_PR_NUMBER"),
+			body,
+			os.Getenv("PLUGIN_COMMENT_MARKER"))
+		writeResult(*results, fields)
+	}
+	if strings.Contains(commands, "addReaction") {
+		verifyPluginParameters([]string{"PLUGIN_COMMENT_ID", "PLUGIN_REACTION"})
+		addReaction(client, &ctx, repositoryName, repositoryOwner,
+			os.Getenv("PLUGIN_COMMENT_ID"),
+			os.Getenv("PLUGIN_REACTION"))
 	}
 	results.Close()
 
