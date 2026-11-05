@@ -89,10 +89,18 @@ Creates the tag, or moves it to `SHA` if it already exists.
 `PR_SOURCE_BRANCH=author/ticket/feature` \
 `PR_TARGET_BRANCH=main` \
 `PR_TITLE="[CIIT-321] Update version file"` \
-`PR_BODY="Update version to v0.0.3"` \
+`PR_BODY="Update version to v0.0.3"` (optional) \
+`PR_BODY_FILE=pr_body.md` (optional, used instead of `PR_BODY`) \
+`PR_ASSIGNEES="octocat, hubot"` (optional) \
 `PR_LABELS="label1, label2"` (optional)
 
 If a pull request for the same branches already exists, its title and body are updated instead.
+
+Without `PR_BODY` and `PR_BODY_FILE`, the description is empty. Like `COMMENT_BODY_FILE`, `PR_BODY_FILE` is
+read from the step's workspace, so an earlier `Run` step in the same stage can write a multiline description to
+it (Harness output variables cannot carry multiline values).
+
+Users who cannot be assigned are skipped with a warning.
 
 Outputs: `PR_NUMBER`, `PR_URL`, `PR_TITLE`, `PR_HEAD`, `PR_HEAD_SHA`, `PR_BASE`
 

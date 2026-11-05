@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"slices"
 	"strconv"
 	"strings"
@@ -19,18 +18,6 @@ var allowedReactions = []string{"+1", "-1", "laugh", "confused", "heart", "hoora
 // GitHub does not render it, so it never shows up in the PR conversation.
 func commentMarkerTag(marker string) string {
 	return fmt.Sprintf("<!-- harness-github-api-plugin:%s -->", marker)
-}
-
-// resolveCommentBody returns the comment body from COMMENT_BODY, or from the file named by
-// COMMENT_BODY_FILE when it is set. A file lets an earlier Run step in the same stage write a long,
-// multiline report that would be awkward to pass through a plugin setting.
-func resolveCommentBody(body string, bodyFile string) string {
-	if bodyFile == "" {
-		return body
-	}
-	content, err := os.ReadFile(bodyFile)
-	failOnErr(err)
-	return string(content)
 }
 
 // upsertPrComment creates a comment on a pull request. When marker is set, it first looks for a
