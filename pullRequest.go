@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/google/go-github/v62/github"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 )
 
 func createPullRequest(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string,
-	sourceBranch string, targetBranch string, title string, body string, labels string) map[string]string {
+	sourceBranch string, targetBranch string, title string, body string, assignees string, labels string) map[string]string {
 	pr, _, err := client.PullRequests.Create(*ctx, repositoryOwner, repositoryName,
 		&github.NewPullRequest{Title: &title, Body: &body, Head: &sourceBranch, Base: &targetBranch})
 	if err != nil {
@@ -31,6 +32,10 @@ func createPullRequest(client *github.Client, ctx *context.Context, repositoryNa
 		} else {
 			log.Fatal(err)
 		}
+	}
+	if assignees != "" {
+		fmt.Println("Adding assignees: " + assignees)
+		addPullRequestAssignees(client, ctx, repositoryName, repositoryOwner, *pr.Number, assignees)
 	}
 	if labels != "" && labels != "null" {
 		fmt.Println("Adding labels: " + labels)
@@ -78,10 +83,22 @@ func getPullRequest(client *github.Client, ctx *context.Context, repositoryName 
 
 func addPullRequestLabels(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string, pullRequestNumber string, labels string) {
 	number, _ := strconv.Atoi(pullRequestNumber)
-	labelsStrArray := strings.Split(labels, ",")
-	for i, labelName := range labelsStrArray {
-		labelsStrArray[i] = strings.Trim(labelName, " ")
-	}
-	_, _, err := client.Issues.AddLabelsToIssue(*ctx, repositoryOwner, repositoryName, number, labelsStrArray)
+	_, _, err := client.Issues.AddLabelsToIssue(*ctx, repositoryOwner, repositoryName, number, splitList(labels))
 	failOnErr(err)
+}
+
+// addPullRequestAssignees adds the users to the PR's assignees. GitHub silently skips users who cannot
+// be assigned (for example without access to the repository), so they are reported as a warning.
+func addPullRequestAssignees(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string,
+	pullRequestNumber int, assignees string) {
+	logins := splitList(assignees)
+	issue, _, err := client.Issues.AddAssignees(*ctx, repositoryOwner, repositoryName, pullRequestNumber, logins)
+	failOnErr(err)
+	for _, login := range logins {
+		if !slices.ContainsFunc(issue.Assignees, func(user *github.User) bool {
+			return strings.EqualFold(user.GetLogin(), login)
+		}) {
+			fmt.Printf("Warning: could not assign %s to pull request %d\n", login, pullRequestNumber)
+		}
+	}
 }

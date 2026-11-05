@@ -47,12 +47,13 @@ func main() {
 		updateCreateTag(client, &ctx, repositoryName, repositoryOwner, tagName, os.Getenv("PLUGIN_SHA"))
 	}
 	if strings.Contains(commands, "createPullRequest") {
-		verifyPluginParameters([]string{"PLUGIN_PR_SOURCE_BRANCH", "PLUGIN_PR_TARGET_BRANCH", "PLUGIN_PR_TITLE", "PLUGIN_PR_BODY"})
+		verifyPluginParameters([]string{"PLUGIN_PR_SOURCE_BRANCH", "PLUGIN_PR_TARGET_BRANCH", "PLUGIN_PR_TITLE"})
 		fields := createPullRequest(client, &ctx, repositoryName, repositoryOwner,
 			os.Getenv("PLUGIN_PR_SOURCE_BRANCH"),
 			os.Getenv("PLUGIN_PR_TARGET_BRANCH"),
 			os.Getenv("PLUGIN_PR_TITLE"),
-			os.Getenv("PLUGIN_PR_BODY"),
+			resolveBody(optionalEnv("PLUGIN_PR_BODY"), optionalEnv("PLUGIN_PR_BODY_FILE")),
+			optionalEnv("PLUGIN_PR_ASSIGNEES"),
 			os.Getenv("PLUGIN_PR_LABELS"))
 		writeResult(*results, fields)
 	}
@@ -106,7 +107,7 @@ func main() {
 	}
 	if strings.Contains(commands, "upsertPrComment") {
 		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
-		body := resolveCommentBody(optionalEnv("PLUGIN_COMMENT_BODY"), optionalEnv("PLUGIN_COMMENT_BODY_FILE"))
+		body := resolveBody(optionalEnv("PLUGIN_COMMENT_BODY"), optionalEnv("PLUGIN_COMMENT_BODY_FILE"))
 		if body == "" {
 			log.Fatal("upsertPrComment needs COMMENT_BODY or COMMENT_BODY_FILE")
 		}

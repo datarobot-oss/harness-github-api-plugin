@@ -30,6 +30,29 @@ func failOnErr(err error) {
 	}
 }
 
+// resolveBody returns body, or the content of bodyFile when it is set. A file lets an earlier Run
+// step in the same stage write a long, multiline text: Harness output variables cannot carry
+// multiline values, so such a text cannot be passed through a plugin setting.
+func resolveBody(body string, bodyFile string) string {
+	if bodyFile == "" {
+		return body
+	}
+	content, err := os.ReadFile(bodyFile)
+	failOnErr(err)
+	return string(content)
+}
+
+// splitList splits a comma-separated setting such as "label1, label2", dropping empty items.
+func splitList(value string) []string {
+	var items []string
+	for _, item := range strings.Split(value, ",") {
+		if item = strings.TrimSpace(item); item != "" {
+			items = append(items, item)
+		}
+	}
+	return items
+}
+
 // optionalEnv returns the plugin setting, treating "null" (what Harness passes for an
 // unresolved optional expression) the same as unset.
 func optionalEnv(name string) string {
