@@ -68,8 +68,23 @@ Outputs are read from later steps as `<+execution.steps.CommentOnPr.output.outpu
 `COMMANDS="getPrDetails"` \
 `PR_NUMBER=123`
 
+Optional settings, to build exactly what merging the pull request would produce (its test merge commit,
+`refs/pull/<N>/merge`):
+
+`PR_WAIT_MERGEABLE=true` - Wait until GitHub has computed the test merge commit for the current head. GitHub does
+this in the background after each push, so right after a push `mergeable` is `null` and `MERGE_COMMIT_SHA` can still
+be the merge of an earlier head. The step fails when the pull request is not open, has merge conflicts, or the merge
+is not computed within the timeout. \
+`PR_EXPECTED_HEAD_SHA=<sha>` - With `PR_WAIT_MERGEABLE`, fail when the pull request head is another commit (the branch
+moved since the caller resolved it). \
+`PR_MERGEABLE_TIMEOUT=120` - With `PR_WAIT_MERGEABLE`, seconds to wait (default 120; polled every 5 seconds).
+
 Outputs: `TITLE`, `BODY`, `USER_LOGIN`, `USER_EMAIL`, `BASE_BRANCH_NAME`, `BASE_SHA`, `HEAD_BRANCH_NAME`, `HEAD_SHA`,
-`MERGE_COMMIT_SHA`, `STATE`, `URL` (API URL of the pull request), `CREATED_AT`, `IS_DRAFT`
+`MERGE_COMMIT_SHA`, `MERGEABLE` (`true`, `false`, or empty while GitHub computes it), `MERGEABLE_STATE`, `STATE`,
+`URL` (API URL of the pull request), `CREATED_AT`, `IS_DRAFT`
+
+With `PR_WAIT_MERGEABLE`, `MERGE_COMMIT_SHA` is a merge of `HEAD_SHA` into the base branch. A shallow clone can fetch
+it by SHA (`git fetch --depth=1 origin <MERGE_COMMIT_SHA>`).
 
 ### Get changed files
 `COMMANDS="getChangedFiles"` \

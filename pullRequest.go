@@ -63,7 +63,32 @@ func getPullRequest(client *github.Client, ctx *context.Context, repositoryName 
 	failOnErr(err)
 	pr, _, err := client.PullRequests.Get(*ctx, repositoryOwner, repositoryName, prNumber)
 	failOnErr(err)
-	fields := map[string]string{
+	return pullRequestFields(pr)
+}
+
+// getPullRequestDetails is getPrDetails: getPullRequest, or, when PR_WAIT_MERGEABLE is "true",
+// the pull request as it is once its merge commit is computed (see waitForMergeCommit).
+func getPullRequestDetails(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string,
+	prNumberString string, waitMergeable string, expectedHeadSha string, timeoutSeconds string) map[string]string {
+	opts, wait, err := mergeWaitOptionsFromSettings(waitMergeable, expectedHeadSha, timeoutSeconds)
+	failOnErr(err)
+	if !wait {
+		return getPullRequest(client, ctx, repositoryName, repositoryOwner, prNumberString)
+	}
+	prNumber, err := strconv.Atoi(prNumberString)
+	failOnErr(err)
+	reader := githubPrReader{client: client, owner: repositoryOwner, repo: repositoryName}
+	pr, err := waitForMergeCommit(*ctx, reader, prNumber, opts)
+	failOnErr(err)
+	return pullRequestFields(pr)
+}
+
+func pullRequestFields(pr *github.PullRequest) map[string]string {
+	mergeable := ""
+	if pr.Mergeable != nil {
+		mergeable = strconv.FormatBool(pr.GetMergeable())
+	}
+	return map[string]string{
 		"TITLE":            pr.GetTitle(),
 		"BODY":             pr.GetBody(),
 		"USER_LOGIN":       pr.GetUser().GetLogin(),
@@ -73,12 +98,13 @@ func getPullRequest(client *github.Client, ctx *context.Context, repositoryName 
 		"HEAD_BRANCH_NAME": pr.GetHead().GetRef(),
 		"HEAD_SHA":         pr.GetHead().GetSHA(),
 		"MERGE_COMMIT_SHA": pr.GetMergeCommitSHA(),
+		"MERGEABLE":        mergeable,
+		"MERGEABLE_STATE":  pr.GetMergeableState(),
 		"STATE":            pr.GetState(),
 		"URL":              pr.GetURL(),
 		"CREATED_AT":       pr.GetCreatedAt().String(),
 		"IS_DRAFT":         strconv.FormatBool(pr.GetDraft()),
 	}
-	return fields
 }
 
 func addPullRequestLabels(client *github.Client, ctx *context.Context, repositoryName string, repositoryOwner string, pullRequestNumber string, labels string) {
