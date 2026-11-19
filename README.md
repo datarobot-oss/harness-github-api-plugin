@@ -200,11 +200,14 @@ Works for pull request and issue comments, for example to acknowledge the commen
 
 ## Caveats and restrictions
 Harness has a number of limitations that are related to plugin functionality:
-- It doesn't process multiline output data
+- It doesn't read multiline output values: a single one makes the step lose all of its outputs. The plugin
+  therefore writes every value on one line, with newlines escaped as `\n` (for example `BODY` of `getPrDetails`);
+  Harness turns them back into newlines.
 - It limits length of output data
 
 If you hit these limitations, you can read the file named `outputVariables` that is created by the plugin in the current workspace directory.
-Within the same pipeline stage run the command `source outputVariables`.
+Within the same pipeline stage run the command `source outputVariables`. Multiline values hold a literal `\n`
+there; expand them with `printf '%b' "$BODY"`.
 
 Any failed API call fails the step.
 
