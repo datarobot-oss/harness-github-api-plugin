@@ -18,10 +18,21 @@ func verifyPluginParameters(variables []string) {
 
 func writeResult(results os.File, fields map[string]string) {
 	for f, v := range fields {
-		line := fmt.Sprintf("%s=\"%s\"\n", f, strings.ReplaceAll(v, "\"", "\\\""))
+		line := fmt.Sprintf("%s=\"%s\"\n", f, envFileValue(v))
 		fmt.Print(line)
 		results.WriteString(line)
 	}
+}
+
+// envFileValue escapes a value for a double-quoted KEY="value" line of the output file. Each value
+// must stay on one line: Harness reads the file with a dotenv parser that rejects multiline values,
+// and one such value (a pull request description, for example) loses ALL of the step's outputs
+// ("failed to read exported env file"). Newlines become \n, which the parser turns back into
+// newlines; carriage returns are dropped.
+func envFileValue(v string) string {
+	v = strings.ReplaceAll(v, "\r", "")
+	v = strings.ReplaceAll(v, "\"", "\\\"")
+	return strings.ReplaceAll(v, "\n", "\\n")
 }
 
 func failOnErr(err error) {
