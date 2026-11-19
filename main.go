@@ -31,7 +31,10 @@ func main() {
 	failOnErr(err)
 	if strings.Contains(commands, "getPrDetails") {
 		verifyPluginParameters([]string{"PLUGIN_PR_NUMBER"})
-		fields := getPullRequest(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_PR_NUMBER"))
+		fields := getPullRequestDetails(client, &ctx, repositoryName, repositoryOwner, os.Getenv("PLUGIN_PR_NUMBER"),
+			optionalEnv("PLUGIN_PR_WAIT_MERGEABLE"),
+			optionalEnv("PLUGIN_PR_EXPECTED_HEAD_SHA"),
+			optionalEnv("PLUGIN_PR_MERGEABLE_TIMEOUT"))
 		writeResult(*results, fields)
 	}
 	if strings.Contains(commands, "getChangedFiles") {
